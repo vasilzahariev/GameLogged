@@ -1,12 +1,15 @@
 import express, { Express } from "express";
 import Database from "./Database";
 import dotEnv from 'dotenv';
+import GameRouter from "../Components/Game/GameRouter";
 
 class Server {
     public async init() : Promise<void> {
         this.initEnvironmentVariables();
 
         await Database.connect();
+
+        this.app.use('/api/', GameRouter.router);
 
         this.app.listen(this._port, this.onConnection.bind(this));
     }
