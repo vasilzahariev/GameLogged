@@ -1,18 +1,18 @@
 /*
- * @file IGameModel.ts
+ * @file IGame.ts
  * @author vasil
  * @created 12/22/23, 10:59 PM
  * @modified 12/22/23, 10:59 PM
  */
 
-export interface IGameModel {
+export interface IGame {
 	name : string;
 
 	description : string;
 
 	releaseDate : Date;
 
-	icon : string;
+	cover : string;
 
 	genres : string[];
 

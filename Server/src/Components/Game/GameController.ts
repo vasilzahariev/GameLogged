@@ -7,39 +7,42 @@
 
 
 import GameModel from './GameModel';
-import { Schema, HydratedDocument, Query } from 'mongoose';
-import { IGameModel } from './IGameModel';
+import { Schema, HydratedDocument } from 'mongoose';
+import { IGame } from './IGame';
+import { BaseController, QueryType } from "../Base/BaseController";
 
-type FindByIdQueryType = Query<HydratedDocument<IGameModel> | null, HydratedDocument<IGameModel>, {}, DocumentType, 'findById'>;
-type FindOneQueryType = Query<HydratedDocument<IGameModel> | null, HydratedDocument<IGameModel>, {}, DocumentType, 'findOne'>;
-type FindByIdAndUpdateQueryType = Query<HydratedDocument<IGameModel> | null, HydratedDocument<IGameModel>>
+class GameController extends BaseController<IGame> {
+	constructor() {
+		super(GameModel);
+	}
 
-class GameController {
-	public async createGame(body : any) : Promise<void> {
-		const name : string = body.name;
-		const description : string = body.description;
-		const releaseDate : Date = body.releaseDate;
-		const icon : string = body.icon;
-		const genres : string[] = body.genres;
-		const platforms : string[] = body.platforms;
-		const officialWebsite = body.officialWebsite;
-
-		if ( ! name ) {
+	public async add(body : IGame) : Promise<HydratedDocument<IGame>> {
+		if ( ! body.name ) {
 			throw new Error('Name is required!');
 		}
 
-		try {
-			const game : HydratedDocument<IGameModel> = new GameModel({
-				name,
-				description,
-				releaseDate,
-				icon,
-				genres,
-				platforms,
-				officialWebsite
-			});
+		return super.add(body);
+	}
 
-			await game.save();
+    public async edit(id : Schema.Types.ObjectId, body : IGame) : Promise<HydratedDocument<IGame>> {
+        if ( ! body.name ) {
+			throw new Error('Name is should be valid!');
+		}
+
+		return await super.edit(id, body);
+    }
+
+	public async deleteByName(name : string) : Promise<any> {
+		if ( ! name ) {
+			throw new Error('Name should be valid!');
+		}
+
+		const query : QueryType<IGame> = this.model.findOneAndDelete({ name });
+
+		try {
+			await query.exec();
+
+			// TODO Think how to notify the FE that the action has been successful
 		} catch (err) {
 			console.error(err);
 
@@ -47,55 +50,17 @@ class GameController {
 		}
 	}
 
-	public async getGameById(id : Schema.Types.ObjectId) : Promise<HydratedDocument<IGameModel>> {
-		const query : FindByIdQueryType = GameModel.findById(id);
-		const document : HydratedDocument<IGameModel> = await query.exec();
-
-		if ( document === null ) {
-			throw new Error(`There is no game with id: ${id}`);
+	public async findByName(name : string) : Promise<HydratedDocument<IGame>> {
+		if ( ! name ) {
+			throw new Error('name should be valid');
 		}
 
-		return document;
-	}
-
-	public async getGameByName(name : string) : Promise<HydratedDocument<IGameModel>> {
-		const query : FindOneQueryType = GameModel.findOne({ name });
-		const document : HydratedDocument<IGameModel> = await query.exec();
-
-		if ( document === null ) {
-			throw new Error(`There is no game with name: ${name}`);
-		}
-
-		return document;
-	}
-
-	public async editGame(body : any) : Promise<void> {
-		const gameId : string = body.gameId;
-		const name : string = body.name;
-		const description : string = body.description;
-		const releaseDate : Date = body.releaseDate;
-		const icon : string = body.icon;
-		const genres : string[] = body.genres;
-		const platforms : string[] = body.platforms;
-		const officialWebsite = body.officialWebsite;
+		const query : QueryType<IGame> = this.model.findOne({ name });
 
 		try {
-			const query : FindByIdAndUpdateQueryType = GameModel.findByIdAndUpdate(
-				{ _id: gameId  },
-				{
-					name,
-					description,
-					releaseDate,
-					icon,
-					genres,
-					platforms,
-					officialWebsite,
-				},
-			);
+			const game : HydratedDocument<IGame> = await query.exec();
 
-			await query.exec();
-
-			// TODO It'll be good to return some type of success message so that the FE knows everything went well
+			return game;
 		} catch (err) {
 			console.error(err);
 

@@ -8,9 +8,9 @@
 import express, { Express } from 'express';
 
 export abstract class BaseRouter {
-	protected _router : Express = express();
+	protected router : Express = express();
 
-	public get router() : Express {
-		return this._router;
+	public init(app : Express, path : string) : void {
+		app.use(path, this.router);
 	}
 }

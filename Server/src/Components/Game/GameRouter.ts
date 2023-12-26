@@ -12,15 +12,11 @@ class GameRouter extends BaseRouter {
 	constructor() {
 		super();
 
-		// this.router.get('/g/:name', this.getGame.bind(this));
-		// this.router.post('/g/');
+		// this.router.get('/:name', this.getGame.bind(this));
+		// this.router.post('/');
 	}
 
-	private async createGame(req : Request, res : Response) : Promise<void> {
-		// TODO
-	}
-
-	private async getGame(req : Request, res : Response) : Promise<void> {
+	private async add(req : Request, res : Response) : Promise<void> {
 		// TODO
 	}
 }
