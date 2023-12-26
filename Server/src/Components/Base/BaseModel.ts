@@ -5,11 +5,30 @@
  * @modified 12/22/23, 11:30 PM
  */
 
-import { Model, Schema } from 'mongoose';
-import { IGameModel } from "../Game/IGameModel";
+import { model, Model, Schema, SchemaDefinition } from 'mongoose';
 
-export abstract class BaseModel<T> {
-	public abstract init() : Model<T>;
+export abstract class BaseModel<SchemaInterface> {
+	public readonly NAME : string;
 
-	protected abstract initSchema() : Schema<IGameModel>;
+	protected readonly SCHEMA_DEFINITION : SchemaDefinition<SchemaInterface>;
+
+	protected constructor(
+		name : string,
+		schemaDefinition : SchemaDefinition<SchemaInterface>,
+	) {
+		this.NAME = name;
+		this.SCHEMA_DEFINITION = schemaDefinition;
+	}
+
+	public init() : Model<SchemaInterface> {
+		const schema : Schema<SchemaInterface> = this.initSchema();
+
+		return model<SchemaInterface>(this.NAME, schema);
+	}
+
+	protected initSchema() : Schema<SchemaInterface> {
+		return new Schema<SchemaInterface>(
+			this.SCHEMA_DEFINITION,
+		);
+	}
 }
